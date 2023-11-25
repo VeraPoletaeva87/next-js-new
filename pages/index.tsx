@@ -1,10 +1,6 @@
-'use client'
-
 import Head from 'next/head';
-import Search from '../components/search';
-import Result from '../components/results';
 import { ListItem } from '../types';
-import { useSearchParams } from 'next/navigation';
+import ItemsLayout from './itemsLayout';
 
 type Props = {
   items: ListItem[]
@@ -33,9 +29,11 @@ export default function Home({items}: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Search/>
-        <Result items={items}/>
+        <ItemsLayout>
+            <div></div>
+        </ItemsLayout>
       </main>
     </>
   )
 }
+

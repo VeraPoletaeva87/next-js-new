@@ -22,7 +22,7 @@ const Pagination = (props: pageProps) => {
       </button>
       {pageNumbers.map((page) => (
         <button 
-          className={styles.paginationItem }
+          className={`${styles.paginationItem} ${page === currentPage ? styles.paginationActive : ''}`}
           key={page}
           onClick={() => onPageChange(page)}
         >

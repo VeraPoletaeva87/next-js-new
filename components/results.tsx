@@ -1,26 +1,29 @@
-import { ChangeEvent, useCallback, useMemo, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import Pagination from './pagination';
 import '../styles/Results.module.css';
 import Item from './item';
-import Loader from './loader';
 import { ListItem } from '../types';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, store } from '@/store';
-import { getBeers, useGetBeersQuery } from '@/features/apiSlice';
-import { setResults } from '@/features/resultsSlice';
-import { useAppSelector } from '@/features/hooks';
+import { RootState } from '../store';
+import { useGetBeersQuery } from '../features/apiSlice';
+import { setResults } from '../features/resultsSlice';
+import { changPageLimit } from '../features/pageLimitSlice';
+import { useRouter } from 'next/router';
+import { changeTotalPages } from '../features/totalPagesSlice';
 
 type Props = {
     items: ListItem[]
   }
 
 function Result(props: Props) {
+  const router = useRouter();
   const searchString = useSelector((state: RootState) => state.search.value);
   
-  const pageLimit = 10; //useSelector((state: RootState) => state.pageLimit.value);
-  const currentPage = 1;
-  const totalPages = 3;
-  const [items, setItems] = useState<ListItem[]>();
+  const pageLimit = useSelector((state: RootState) => state.pageLimit.value);
+  const totalPages = useSelector((state: RootState) => state.totalPages.value);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const [items, setItems] = useState<ListItem[]>(props.items ?? []);
 
   const urlBase = 'https://api.punkapi.com/v2/beers';
   const dispatch = useDispatch();
@@ -32,7 +35,7 @@ function Result(props: Props) {
     ? url + `&page=${currentPage}&per_page=${pageLimit}`
     : url + `?page=${currentPage}&per_page=${pageLimit}`;
 
-  const { data, isLoading } = useGetBeersQuery({ url, limit: pageLimit });
+  const { data } = useGetBeersQuery({ url, limit: pageLimit });
 
   useEffect(() => {
     if (props.items) {
@@ -47,20 +50,23 @@ function Result(props: Props) {
     }
   }, [data]);
 
+ const { length } = items;
+
+  const handleItemsPerPageChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>): void => {
+      dispatch(changPageLimit(+e?.target.value));
+      const pagesCount = (Math.ceil( length / +e?.target.value));
+      dispatch(changeTotalPages(pagesCount)); 
+    },
+    [dispatch, length]
+  );
 
   const handlePageChange = (page: number): void => {
-   // setCurrentPage(page);
+    setCurrentPage(page);
   };
 
   const itemClickHandler = (id: number) => {
-    //navigate(`/details/${id}`, { state: { id } });
-  };
-
-
-  const listApi = async (url: string): Promise<ListItem[]> => {
-    const response = await fetch(url);
-    const items = await response.json();
-    return items as ListItem[];
+    router.push(`/details/${id}`);
   };
 
   return (
@@ -70,7 +76,7 @@ function Result(props: Props) {
         <select
           className="margin select-field"
           value={pageLimit}
-         
+          onChange={handleItemsPerPageChange}
         >
           <option value="5">5</option>
           <option value="10">10</option>
@@ -84,9 +90,6 @@ function Result(props: Props) {
         pageLimit={pageLimit}
         onPageChange={handlePageChange}
       />
-      {isLoading ? (
-        <Loader />
-      ) : (
         <ul data-testid="list">
           {items?.length ? (
             items?.map((item: ListItem) => (
@@ -102,7 +105,6 @@ function Result(props: Props) {
             <h2 data-testid="empty-text">No items</h2>
           )}
         </ul>
-      )}
     </div>
   );
 }

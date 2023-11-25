@@ -1,8 +1,8 @@
 import React, { ChangeEvent, useCallback } from "react";
 import styles from "../styles/Search.module.css";
-import { changSearch } from "@/features/searchSlice";
+import { changSearch } from "../features/searchSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { RootState } from "../store";
 
 interface SearchProps {
   onSearch: (value: string) => void;

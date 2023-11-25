@@ -19,6 +19,10 @@
     min-width: 32px;
 } 
 
+.paginationActive {
+    background-color: rgba(226, 160, 160, 0.54);
+} 
+
 .paginationItem:hover {
     background-color: rgb(139 83 83 / 54%);
     cursor: pointer;
