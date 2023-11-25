@@ -1,16 +1,20 @@
+'use client'
+
 import Head from 'next/head';
 import Search from '../components/search';
 import Result from '../components/results';
 import { ListItem } from '../types';
+import { useSearchParams } from 'next/navigation';
 
 type Props = {
   items: ListItem[]
 }
 
-export async function getServerSideProps() {
-  const response = await fetch('https://api.punkapi.com/v2/beers');
+export const getServerSideProps = async (context: {
+  query: string;
+}) => {
+  const response = await fetch(`https://api.punkapi.com/v2/beers`);
   const data = await response.json();
-
   return {
     props: {
       items: data
@@ -19,6 +23,7 @@ export async function getServerSideProps() {
 }
 
 export default function Home({items}: Props) {
+ 
   return (
     <>
       <Head>

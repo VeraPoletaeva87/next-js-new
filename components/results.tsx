@@ -1,24 +1,30 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useMemo, useEffect, useState } from 'react';
 import Pagination from './pagination';
 import '../styles/Results.module.css';
 import Item from './item';
 import Loader from './loader';
 import { ListItem } from '../types';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, store } from '@/store';
+import { getBeers, useGetBeersQuery } from '@/features/apiSlice';
+import { setResults } from '@/features/resultsSlice';
+import { useAppSelector } from '@/features/hooks';
 
 type Props = {
     items: ListItem[]
   }
 
 function Result(props: Props) {
-  const searchString = ''; //useSelector((state: RootState) => state.search.value);
+  const searchString = useSelector((state: RootState) => state.search.value);
+  
   const pageLimit = 10; //useSelector((state: RootState) => state.pageLimit.value);
   const currentPage = 1;
   const totalPages = 3;
-
-  const isLoading = false;
-
+  const [items, setItems] = useState<ListItem[]>();
 
   const urlBase = 'https://api.punkapi.com/v2/beers';
+  const dispatch = useDispatch();
+
   const params = new URLSearchParams({ beer_name: searchString });
   const paramsString = params.toString();
   let url = searchString ? `${urlBase}?${paramsString}` : urlBase;
@@ -26,7 +32,21 @@ function Result(props: Props) {
     ? url + `&page=${currentPage}&per_page=${pageLimit}`
     : url + `?page=${currentPage}&per_page=${pageLimit}`;
 
- // const { data, isLoading } = useGetBeersQuery({ url, limit: pageLimit });
+  const { data, isLoading } = useGetBeersQuery({ url, limit: pageLimit });
+
+  useEffect(() => {
+    if (props.items) {
+      dispatch(setResults(props.items));
+      setItems(props.items);
+    }
+  }, [dispatch, props.items]);
+
+  useEffect(() => {
+    if (data) {
+      setItems(data);
+    }
+  }, [data]);
+
 
   const handlePageChange = (page: number): void => {
    // setCurrentPage(page);
@@ -68,8 +88,8 @@ function Result(props: Props) {
         <Loader />
       ) : (
         <ul data-testid="list">
-          {props.items?.length ? (
-            props.items?.map((item: ListItem) => (
+          {items?.length ? (
+            items?.map((item: ListItem) => (
               <Item
                 key={item.id}
                 id={item.id}
