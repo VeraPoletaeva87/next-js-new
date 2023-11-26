@@ -1,0 +1,22 @@
+.searchBlock {
+    border-bottom: 1px solid black;
+    padding-bottom: 20px;
+    padding-top: 10px;
+  }
+  
+  .searchField {
+    margin-right: 12px;
+    width: 300px;
+    height: 30px;
+    border: 1px solid #cbc4c4;
+    border-radius: 8px;
+    font-size: 18px;
+  }
+  
+  .searchButton:hover {
+    background-color: rgb(214, 215, 219);
+  }
+
+  .flex {
+    display: flex;
+  }
